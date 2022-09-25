@@ -5,7 +5,12 @@
 #____________________________________________________________
 
 data "intersight_organization_organization" "org_moid" {
-  name = var.organization
+  for_each = {
+    for v in [var.organization] : v => v if length(
+      regexall("[[:xdigit:]]{24}", var.organization)
+    ) == 0
+  }
+  name = each.value
 }
 
 #____________________________________________________________
@@ -45,11 +50,15 @@ resource "intersight_sdcard_policy" "sd_card" {
   description = var.description != "" ? var.description : "${var.name} SD Card Policy."
   name        = var.name
   organization {
-    moid        = data.intersight_organization_organization.org_moid.results[0].moid
+    moid = length(
+      regexall("[[:xdigit:]]{24}", var.organization)
+      ) > 0 ? var.organization : data.intersight_organization_organization.org_moid[
+      var.organization].results[0
+    ].moid
     object_type = "organization.Organization"
   }
   dynamic "partitions" {
-    for_each = { for v in [var.enable_os]: v => v if var.enable_os == true }
+    for_each = { for v in [var.enable_os] : v => v if var.enable_os == true }
     content {
       type        = "OS"
       object_type = "sdcard.Partition"
@@ -66,7 +75,7 @@ resource "intersight_sdcard_policy" "sd_card" {
         regexall(true, var.enable_diagnostics)) > 0 || length(
         regexall(true, var.enable_drivers)) > 0 || length(
         regexall(true, var.enable_huu)) > 0 || length(
-        regexall(true, var.enable_scu)) > 0
+      regexall(true, var.enable_scu)) > 0
     }
     content {
       type        = "Utility"
