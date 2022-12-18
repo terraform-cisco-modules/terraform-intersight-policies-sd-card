@@ -60,7 +60,7 @@ variable "enable_huu" {
 variable "enable_os" {
   default     = false
   description = <<-EOT
-    Flag to Enable the OperatingSystem Partition.
+    Flag to Enable the Operating System Partition.
     * When two cards are present in the Cisco FlexFlash controller and Operating System is chosen in the SD card policy, the configured OS partition is mirrored. If only single card is available in the Cisco FlexFlash controller, the configured OS partition is non-RAID. The utility partitions are always set as non-RAID.
     * Note:
       - This policy is currently not supported on M6 servers.
